@@ -8,6 +8,11 @@ The latest version only supports SilverStripe 3, see the 1.0 branch for a Silver
 
 Menu Manager is licensed under an [MIT license](http://heyday.mit-license.org/)
 
+## Credit
+
+Big thanks go to [Heyday](https://github.com/heyday) for this plugin, we have just added title field to the menu set and bumped the version.  
+
+
 ##Installation
 
 ###Non-composer
@@ -25,7 +30,7 @@ Create or edit a `composer.json` file in the root of your SilverStripe project, 
 ```json
 {
     "require": {
-        "heyday/silverstripe-menumanager": "~2.1.0"
+        "chrometoasters/silverstripe-menumanager": "~2.2.0"
     }
 }
 ```
@@ -41,14 +46,16 @@ There are 2 main steps to creating a menu using menu management.
 ### Creating a MenuSet
 
 This is pretty straight forward. You just give the MenuSet a Name (which is what you reference in the templates when controlling the menu).
+MenuSet has a Title as well which can be displayed in the templates. It's handy where you want to have an editable title of the menu, not just use its items. 
 
 As it is common to reference MenuSets by name in templates, you can configure sets to be created automatically during the /dev/build task. These sets cannot be deleted through the CMS.
 
 ```yaml
 MenuSet:
   default_sets:
-    - Main
-    - Footer
+    Main: 'Main menu title'
+    'Footer 1st': 'Footer menu 1st column'
+    'Footer 2nd': 'Footer menu 2nd column'
 ```
 
 
@@ -83,7 +90,8 @@ Can be used as a check to see if 'target="_blank"' should be added to links.
 
 ### Usage in template
 
-	<% loop $MenuSet('YourMenuName').MenuItems %>
+    Title of the menu: $MenuSet('Footer 2nd').Title
+	<% loop $MenuSet('Footer 2nd').MenuItems %>
 		<a href="$Link" class="$LinkingMode">$MenuTitle</a>
 	<% end_loop %>
 
