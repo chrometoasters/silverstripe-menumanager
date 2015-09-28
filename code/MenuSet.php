@@ -9,7 +9,8 @@ class MenuSet extends DataObject implements PermissionProvider
      * @var array
      */
     private static $db = array(
-        'Name' => 'Varchar(255)'
+        'Name' => 'Varchar(255)',
+        'MenuSetTitle' => 'Varchar(255)',
     );
     /**
      * @var array
@@ -27,7 +28,8 @@ class MenuSet extends DataObject implements PermissionProvider
      * @var array
      */
     private static $summary_fields = array(
-        'Name'
+        'Name' => 'Name',
+        'MenuSetTitle' => 'Title',
     );
     /**
      * @return array
@@ -77,6 +79,13 @@ class MenuSet extends DataObject implements PermissionProvider
     {
         return $this->MenuItems();
     }
+    /**
+     * @return string
+     */
+    public function Title()
+    {
+        return $this->MenuSetTitle;
+    }
 
     /**
      * Check if this menu set appears in the default sets config
@@ -84,7 +93,7 @@ class MenuSet extends DataObject implements PermissionProvider
      */
     public function isDefaultSet()
     {
-        return in_array($this->Name, $this->getDefaultSetNames());
+        return array_key_exists($this->Name, $this->getDefaultSetNames());
     }
 
     /**
@@ -94,15 +103,16 @@ class MenuSet extends DataObject implements PermissionProvider
     {
         parent::requireDefaultRecords();
 
-        foreach ($this->getDefaultSetNames() as $name) {
+        foreach ($this->getDefaultSetNames() as $name => $title) {
             $existingRecord = MenuSet::get()->filter('Name', $name)->first();
 
             if (!$existingRecord) {
                 $set = new MenuSet();
                 $set->Name = $name;
+                $set->MenuSetTitle = $title;
                 $set->write();
 
-                DB::alteration_message("MenuSet '$name' created", 'created');
+                DB::alteration_message("MenuSet '$name' with title '$title' created", 'created');
             }
         }
     }
@@ -117,6 +127,8 @@ class MenuSet extends DataObject implements PermissionProvider
         if ($this->ID != null) {
             $fields->removeByName('Name');
 
+            $fields->push(new TextField("MenuSetTitle", 'Menu title'));
+
             $fields->push(
                 $menuItems = new GridField(
                     'MenuItems',
@@ -130,6 +142,7 @@ class MenuSet extends DataObject implements PermissionProvider
 
         } else {
             $fields->push(new TextField('Name', 'Name (this field can\'t be changed once set)'));
+            $fields->push(new TextField("MenuSetTitle", 'Menu title'));
         }
 
         $this->extend('updateCMSFields', $fields);

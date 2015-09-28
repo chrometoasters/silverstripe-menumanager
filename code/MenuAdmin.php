@@ -23,4 +23,13 @@ class MenuAdmin extends ModelAdmin
      * @var array
      */
     private static $model_importers = array();
+
+    /**
+     * @return mixed
+     */
+    public function getList() {
+        $list = parent::getList();
+
+        return $list->sort('Name');
+    }
 }

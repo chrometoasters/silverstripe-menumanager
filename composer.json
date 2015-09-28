@@ -1,5 +1,5 @@
 {
-	"name": "heyday/silverstripe-menumanager",
+	"name": "chrometoasters/silverstripe-menumanager",
 	"type": "silverstripe-module",
 	"description": "Allows complex menu management to be handled through the CMS when a simple tree structure is not enough.",
 	"license": "MIT",
@@ -8,6 +8,11 @@
 			"name": "Heyday Developers",
 			"email": "dev@heyday.co.nz",
 			"role": "Developer"
+		},
+		{
+			"name": "Michal Kleiner",
+			"email": "michal.kleiner@chrometoaster.com",
+			"role": "Backend developer"
 		}
 	],
 	"require": {
