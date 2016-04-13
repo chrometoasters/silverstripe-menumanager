@@ -3,27 +3,17 @@
 /**
  * Class MenuItem
  */
-class MenuItem extends DataObject implements PermissionProvider
+class MenuItem extends Link implements PermissionProvider
 {
-    /**
-     * @var array
-     */
+
     private static $db = array(
-        // If you want to customise the MenuTitle use this field - leaving blank will use MenuTitle of associated Page
-        'MenuTitle'   => 'Varchar(255)',
-        // This field is used for external links (picking a page from the dropdown will overwrite this link)
-        'Link'        => 'Text',
-        // Sort order
-        'Sort'        => 'Int',
-        // Can be used as a check for adding target="_blank"
-        'IsNewWindow' => 'Boolean'
+        'Sort'  => 'Int',
     );
 
     /**
      * @var array
      */
     private static $has_one = array(
-        'Page'    => 'SiteTree', // page the MenuItem refers to
         'MenuSet' => 'MenuSet' // parent MenuSet
     );
 
@@ -31,18 +21,17 @@ class MenuItem extends DataObject implements PermissionProvider
      * @var array
      */
     private static $searchable_fields = array(
-        'MenuTitle',
-        'Page.Title'
+        'Title',
     );
 
     /**
      * @var array
      */
     private static $summary_fields = array(
-        'Menu Title' => 'MenuTitle',
-        'Page Title' => 'Page.Title',
-        'Link',
-        'IsNewWindow'
+        'Title',
+        'LinkType',
+        'LinkURL',
+        'OpenInNewWindow',
     );
 
     /**
@@ -101,24 +90,12 @@ class MenuItem extends DataObject implements PermissionProvider
      */
     public function getCMSFields()
     {
-        $fields = new FieldList();
+        $fields = parent::getCMSFields();
 
-        $fields->push(
-            new TextField('MenuTitle', 'Menu Title (will default to selected page title)')
-        );
-
-        $fields->push(
-            new TreeDropdownField(
-                'PageID',
-                'Page',
-                'Page'
-            )
-        );
-
-        $fields->push(new TextField('Link', 'Link (use when not specifying a page)'));
-        $fields->push(new CheckboxField('IsNewWindow', 'Open in a new window?'));
-
-        $this->extend('updateCMSFields', $fields);
+        $fields->removeByName(array(
+            'Sort',
+            'MenuSetID',
+        ));
 
         return $fields;
     }
@@ -147,7 +124,7 @@ class MenuItem extends DataObject implements PermissionProvider
         if ($default || $field === 'ID') {
             return $default;
         } else {
-            $page = $this->Page();
+            $page = $this->SiteTree();
 
             if ($page instanceof DataObject) {
                 if ($page->hasMethod($field)) {
@@ -156,21 +133,17 @@ class MenuItem extends DataObject implements PermissionProvider
                     return $page->$field;
                 }
             }
+
+            $file = $this->File();
+
+            if ($file instanceof DataObject) {
+                if ($file->hasMethod($field)) {
+                    return $file->$field();
+                } else {
+                    return $file->$field;
+                }
+            }
         }
     }
 
-    /**
-     * Checks to see if a page has been chosen and if so sets Link to null
-     * This means that used in conjunction with the __get method above
-     * calling $menuItem->Link won't return the Link field of this MenuItem
-     * but rather call the Link method on the associated Page
-     */
-    public function onBeforeWrite()
-    {
-        parent::onBeforeWrite();
-
-        if ($this->PageID != 0) {
-            $this->Link = null;
-        }
-    }
 }
