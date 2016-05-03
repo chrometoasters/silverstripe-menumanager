@@ -121,7 +121,7 @@ class MenuItem extends Link implements PermissionProvider
     {
         $default = parent::__get($field);
 
-        if ($default || $field === 'ID') {
+        if (($default || $field === 'ID') && ($field !== 'ClassName')) {
             return $default;
         } else {
             $page = $this->SiteTree();
